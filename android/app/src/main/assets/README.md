@@ -11,6 +11,7 @@ labeler (~400 classes).
 | `clip_words.txt` | `tools/build_wordlist.py` | N English nouns, one per line (row-aligned to embeddings) |
 | `text_embeddings.bin` | `tools/encode_text.py` | int8 table: float32 `scale` (LE) + `N*512` int8; device dequant = `q * scale` (≈4× smaller than float32, negligible loss) |
 | `words.tsv` | `tools/translate_words.py` | `english \t zh-TW \t zh-CN`, one per line (translation table) |
+| `u2netp.onnx` | rembg release (or `tools/convert_models.py --target u2net`) | U²-Net salient-object segmentation, input `input.1` `[1,3,320,320]`; fully-offline subject cut-out. When present, used instead of ML Kit. |
 
 ## Why ONNX Runtime (not TFLite)
 The MobileCLIP-S0 image encoder converts to ONNX cleanly and ONNX==PyTorch

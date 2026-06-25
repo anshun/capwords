@@ -9,6 +9,7 @@ import com.capwords.ml.MlKitRecognizer
 import com.capwords.ml.MlKitSegmenter
 import com.capwords.ml.Recognizer
 import com.capwords.ml.Segmenter
+import com.capwords.ml.U2NetSegmenter
 import com.capwords.ml.Translator
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -37,7 +38,24 @@ class AppContainer(private val context: Context) {
 
     val translator: Translator by lazy { Translator(context) }
 
-    val segmenter: Segmenter by lazy { MlKitSegmenter() }
+    private val segmenterMutex = Mutex()
+    private var cachedSegmenter: Segmenter? = null
+
+    /**
+     * Returns the best available segmenter: bundled U²-Net (fully offline) when
+     * its asset is present, otherwise ML Kit subject segmentation.
+     */
+    suspend fun segmenter(): Segmenter = segmenterMutex.withLock {
+        cachedSegmenter ?: run {
+            val s = if (U2NetSegmenter.assetAvailable(context)) {
+                U2NetSegmenter.create(context)
+            } else {
+                MlKitSegmenter()
+            }
+            cachedSegmenter = s
+            s
+        }
+    }
 
     private val recognizerMutex = Mutex()
     private var cachedRecognizer: Recognizer? = null

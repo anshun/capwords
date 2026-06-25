@@ -161,7 +161,15 @@ capwords/
 | Phase 1 骨架 | ✅ 完成並驗證 | 五畫面 + CameraX + Room + TTS；`./gradlew assembleDebug` **BUILD SUCCESSFUL**（zero warnings），產出 app-debug.apk |
 | Phase 2 資料管線 | ✅ 完成並執行 | `tools/` 已實際跑出 `clip_words.txt`(2萬) + `words.tsv`(繁簡,99%) + `text_embeddings.bin`(20000×512) |
 | Phase 3 接真模型 | ✅ 完成並驗證 | MobileCLIP-S0 影像編碼器走 **ONNX Runtime**（非 TFLite）；端到端實測命中（donut/cup）；`assembleDebug` 成功打包 213MB APK |
-| Phase 4 打磨 | 🟡 部分 | ✅ APK 體積優化完成（213MB→97MB）；待辦：動畫、瀑布流、U²-Net 離線去背 |
+| Phase 4 打磨 | 🟡 部分 | ✅ APK 體積優化（213MB→97MB）；✅ U²-Net 全離線去背（+4.4MB→101MB）；待辦：動畫、瀑布流、貼紙白邊 |
+
+### U²-Net 全離線去背（2026-06-25）
+- 用 rembg 預轉的 **u2netp.onnx（4.4MB）**，省去 PyTorch→ONNX 轉檔，與辨識共用 ONNX Runtime。
+- `U2NetSegmenter`：輸入 320×320（/max + ImageNet 正規化、NCHW），取 output 0 saliency → min-max 正規化 → 放大成 alpha → 去背貼紙。
+- 影片畫面實測去背乾淨（紅杯完整、甜甜圈+盤子整塊正確）。
+- `AppContainer.segmenter()`：有 `u2netp.onnx` 就用 U²-Net（**安裝即離線**），否則退回 ML Kit 主體分割。
+- `ClipRecognizer` 改為對 alpha 做白底合成，確保辨識看的是去背後主體、非殘留背景。
+- APK 101MB（仍全離線、開箱即用）。
 
 ### APK 體積優化（2026-06-25）：213MB → 97MB（−54%）
 - **只保留 arm64-v8a ABI**（`abiFilters`）：丟掉 x86/x86_64/armeabi-v7a 的 ONNX Runtime 原生庫，約 −53MB。

@@ -62,9 +62,15 @@ class ClipRecognizer private constructor(
         val chw = FloatArray(3 * area)
         for (i in 0 until area) {
             val p = pixels[i]
-            chw[i] = ((p shr 16) and 0xFF) / 255f                 // R plane
-            chw[area + i] = ((p shr 8) and 0xFF) / 255f           // G plane
-            chw[2 * area + i] = (p and 0xFF) / 255f               // B plane
+            // Alpha-composite over white so a cut-out sticker's transparent
+            // background doesn't leak the original scene into recognition.
+            val a = (p ushr 24) and 0xFF
+            val r = (((p shr 16) and 0xFF) * a + 255 * (255 - a)) / 255
+            val g = (((p shr 8) and 0xFF) * a + 255 * (255 - a)) / 255
+            val b = ((p and 0xFF) * a + 255 * (255 - a)) / 255
+            chw[i] = r / 255f                 // R plane
+            chw[area + i] = g / 255f           // G plane
+            chw[2 * area + i] = b / 255f       // B plane
         }
 
         val buffer = FloatBuffer.wrap(chw)
