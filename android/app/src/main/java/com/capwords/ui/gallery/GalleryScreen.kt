@@ -1,21 +1,20 @@
 package com.capwords.ui.gallery
 
-import androidx.compose.foundation.background
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
@@ -37,11 +36,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.capwords.R
+import com.capwords.appContainer
 import com.capwords.data.WordEntity
 import com.capwords.tts.SpeechHelper
-import com.capwords.appContainer
 import com.capwords.ui.components.OutlinedLabel
-import com.capwords.ui.theme.CapBackground
+import com.capwords.ui.components.dottedBackground
 import java.io.File
 
 @Composable
@@ -55,26 +54,25 @@ fun GalleryScreen(
     val context = LocalContext.current
     val traditional = context.appContainer.settings.traditionalChinese
 
-    Box(modifier = Modifier.fillMaxSize().background(CapBackground)) {
+    Box(modifier = Modifier.fillMaxSize().dottedBackground()) {
         if (sections.isEmpty()) {
             Text(
                 text = stringResource(R.string.empty_gallery),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(48.dp),
+                modifier = Modifier.align(Alignment.Center).padding(48.dp),
             )
         } else {
-            LazyColumn(
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    start = 16.dp, end = 16.dp, top = 64.dp, bottom = 96.dp,
-                ),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 64.dp, bottom = 96.dp),
+                verticalItemSpacing = 18.dp,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 sections.forEach { section ->
-                    item(key = "header_${section.dayKey}") {
-                        Column(modifier = Modifier.padding(start = 4.dp, top = 16.dp, bottom = 12.dp)) {
+                    item(span = StaggeredGridItemSpan.FullLine, key = "h${section.dayKey}") {
+                        Column(modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp)) {
                             Text(section.label, style = MaterialTheme.typography.titleLarge)
                             Text(
                                 stringResource(R.string.words_count, section.words.size),
@@ -83,34 +81,20 @@ fun GalleryScreen(
                             )
                         }
                     }
-                    items(section.words.chunked(2), key = { it.first().id }) { rowItems ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            rowItems.forEach { word ->
-                                WordCard(
-                                    word = word,
-                                    traditional = traditional,
-                                    onSpeak = { speech.speakEnglish(word.english) },
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
-                            if (rowItems.size == 1) Spacer(Modifier.weight(1f))
-                        }
+                    items(section.words, key = { it.id }) { word ->
+                        WordCard(
+                            word = word,
+                            traditional = traditional,
+                            onSpeak = { speech.speakEnglish(word.english) },
+                        )
                     }
                 }
             }
         }
 
-        // Top bar back button
         IconButton(
             onClick = onBack,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 8.dp, top = 44.dp),
+            modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 44.dp),
         ) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
         }
@@ -122,33 +106,22 @@ private fun WordCard(
     word: WordEntity,
     traditional: Boolean,
     onSpeak: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val chinese = if (traditional) word.zhTw else word.zhCn
+    val aspect = rememberStickerAspect(word.stickerPath)
+
     Column(
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth().noRippleClickable(onSpeak),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context).data(File(word.stickerPath)).build(),
-                contentDescription = word.english,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize().padding(8.dp),
-            )
-        }
-        OutlinedLabel(
-            text = word.english,
-            modifier = Modifier
-                .padding(top = 2.dp)
-                .noRippleClickable(onSpeak),
+        AsyncImage(
+            model = ImageRequest.Builder(context).data(File(word.stickerPath)).build(),
+            contentDescription = word.english,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxWidth().aspectRatio(aspect),
         )
+        OutlinedLabel(text = word.english, modifier = Modifier.padding(top = 2.dp))
         if (!chinese.isNullOrBlank()) {
             Text(
                 text = chinese,
@@ -157,6 +130,16 @@ private fun WordCard(
             )
         }
     }
+}
+
+/** Decode just the sticker's bounds (cheap) so the masonry grid sizes by aspect. */
+@Composable
+private fun rememberStickerAspect(path: String): Float = remember(path) {
+    val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, opts)
+    if (opts.outWidth > 0 && opts.outHeight > 0) {
+        (opts.outWidth.toFloat() / opts.outHeight).coerceIn(0.6f, 1.6f)
+    } else 1f
 }
 
 @Composable

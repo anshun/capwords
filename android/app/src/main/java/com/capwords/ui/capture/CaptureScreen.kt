@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.capwords.ui.components.CircleIconButton
+import com.capwords.ui.components.dottedBackground
 import com.capwords.ui.flow.CaptureFlowViewModel
-import com.capwords.ui.theme.CapBackground
 
 @Composable
 fun CaptureScreen(
@@ -39,7 +39,7 @@ fun CaptureScreen(
     val state by flowViewModel.state.collectAsState()
     val captured = state.captured
 
-    Box(modifier = Modifier.fillMaxSize().background(CapBackground)) {
+    Box(modifier = Modifier.fillMaxSize().dottedBackground()) {
         if (captured != null) {
             Image(
                 bitmap = captured.asImageBitmap(),

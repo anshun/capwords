@@ -161,7 +161,14 @@ capwords/
 | Phase 1 骨架 | ✅ 完成並驗證 | 五畫面 + CameraX + Room + TTS；`./gradlew assembleDebug` **BUILD SUCCESSFUL**（zero warnings），產出 app-debug.apk |
 | Phase 2 資料管線 | ✅ 完成並執行 | `tools/` 已實際跑出 `clip_words.txt`(2萬) + `words.tsv`(繁簡,99%) + `text_embeddings.bin`(20000×512) |
 | Phase 3 接真模型 | ✅ 完成並驗證 | MobileCLIP-S0 影像編碼器走 **ONNX Runtime**（非 TFLite）；端到端實測命中（donut/cup）；`assembleDebug` 成功打包 213MB APK |
-| Phase 4 打磨 | 🟡 部分 | ✅ APK 體積優化（213MB→97MB）；✅ U²-Net 全離線去背（+4.4MB→101MB）；待辦：動畫、瀑布流、貼紙白邊 |
+| Phase 4 打磨 | ✅ 大致完成 | ✅ APK 優化（213→97MB）；✅ U²-Net 去背（→101MB）；✅ 貼紙白邊、瀑布流相簿、結果頁黃光+縮放動畫、點點背景；待辦：真機相機實測 |
+
+### Phase 4 UI 打磨（2026-06-25）
+- **白色「模切」貼紙邊框**（`BitmapUtils.withWhiteStickerBorder` + `trimToAlpha`）：去背貼紙加白邊，Python 同演算法預覽確認外觀正確（紅杯白邊乾淨）。辨識用原始去背圖、白邊只用於顯示/儲存。
+- **瀑布流相簿**：`LazyVerticalStaggeredGrid`(2 欄)，日期標題滿版，貼紙依實際長寬比錯落排列。
+- **結果頁動畫**：黃色放射狀光暈 + 貼紙彈性縮放進場（spring）。
+- **點點背景**：`Modifier.dottedBackground()` 套用於 capture/recognize/gallery，貼近影片質感。
+- 全部 `assembleDebug` 通過，APK 101MB。
 
 ### U²-Net 全離線去背（2026-06-25）
 - 用 rembg 預轉的 **u2netp.onnx（4.4MB）**，省去 PyTorch→ONNX 轉檔，與辨識共用 ONNX Runtime。

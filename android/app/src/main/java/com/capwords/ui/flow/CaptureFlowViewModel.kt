@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.capwords.appContainer
 import com.capwords.ml.Recognition
 import com.capwords.ml.Translation
+import com.capwords.ui.util.BitmapUtils.trimToAlpha
+import com.capwords.ui.util.BitmapUtils.withWhiteStickerBorder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,15 +66,18 @@ class CaptureFlowViewModel(app: Application) : AndroidViewModel(app) {
         _state.value = _state.value.copy(processing = true)
         viewModelScope.launch {
             container.translator.ensureLoaded()
-            val sticker = runCatching { container.segmenter().cutout(captured) }
+            val cutout = runCatching { container.segmenter().cutout(captured) }
                 .getOrDefault(captured)
-            // Recognize the segmented subject, not the whole scene: isolating the
-            // object dramatically improves accuracy (a donut on a big plate would
-            // otherwise be read as "plate").
+            // Recognize the segmented subject (raw cut-out), not the whole scene:
+            // isolating the object dramatically improves accuracy (a donut on a big
+            // plate would otherwise be read as "plate").
             val candidates = runCatching {
-                container.recognizer().recognize(sticker, topK = 5)
+                container.recognizer().recognize(cutout, topK = 5)
             }.getOrDefault(emptyList())
             val top = candidates.firstOrNull()
+            // Display/save a trimmed, white "die-cut" sticker (source-app look).
+            val sticker = runCatching { cutout.trimToAlpha().withWhiteStickerBorder() }
+                .getOrDefault(cutout)
             _state.value = _state.value.copy(
                 sticker = sticker,
                 candidates = candidates,
