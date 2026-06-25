@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Centered within the adaptive icon safe zone (the middle 66x66 dp). -->
+    <!-- Outer rounded square representing a viewfinder / capture frame -->
+    <path
+        android:fillColor="#FF222222"
+        android:pathData="M40,38 h6 v-4 a4,4 0 0 1 4,-4 h8 a4,4 0 0 1 4,4 v4 h6 a8,8 0 0 1 8,8 v22 a8,8 0 0 1 -8,8 h-32 a8,8 0 0 1 -8,-8 v-22 a8,8 0 0 1 8,-8 z" />
+    <!-- Inner lens hole -->
+    <path
+        android:fillColor="#FFF6F6F4"
+        android:pathData="M54,42 m-13,0 a13,13 0 1 0 26,0 a13,13 0 1 0 -26,0 z" />
+    <!-- Rainbow aperture petals -->
+    <path android:fillColor="#FFE53935" android:pathData="M54,45 l8,4 l0,8 z" />
+    <path android:fillColor="#FFFB8C00" android:pathData="M62,49 l0,8 l-6,6 z" />
+    <path android:fillColor="#FFFDD835" android:pathData="M62,57 l-6,6 l-8,-2 z" />
+    <path android:fillColor="#FF43A047" android:pathData="M56,63 l-8,-2 l-2,-8 z" />
+    <path android:fillColor="#FF1E88E5" android:pathData="M48,61 l-2,-8 l6,-6 z" />
+    <path android:fillColor="#FF8E24AA" android:pathData="M46,53 l6,-6 l2,-2 l0,4 z" />
+</vector>

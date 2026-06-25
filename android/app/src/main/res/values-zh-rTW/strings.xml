@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CapWords</string>
+
+    <string name="place_object_hint">請將物體放入框內</string>
+    <string name="camera_permission_rationale">CapWords 需要相機權限來辨識你周遭的物體。</string>
+    <string name="grant_permission">允許使用相機</string>
+
+    <string name="confirm">確認</string>
+    <string name="retake">重拍</string>
+    <string name="cancel">取消</string>
+    <string name="crop">裁切</string>
+    <string name="recognizing">辨識中…</string>
+    <string name="not_expected">結果不如預期？點一下調整</string>
+    <string name="speak">發音</string>
+
+    <string name="words_count">%d 個單字</string>
+    <string name="empty_gallery">還沒有單字。點下方快門拍下第一個物體吧。</string>
+</resources>

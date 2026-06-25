@@ -1,0 +1,32 @@
+# === macOS / editors ===
+.DS_Store
+*.swp
+.idea/
+*.iml
+.vscode/
+
+# === Android / Gradle (also covered by android/.gitignore) ===
+.gradle/
+build/
+local.properties
+captures/
+*.apk
+*.aab
+*.keystore
+
+# === Python data pipeline (tools/) ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+# model checkpoints & conversion outputs are large, rebuild via tools/
+tools/checkpoints/
+tools/converted/
+tools/*.onnx
+
+# === Large generated model assets (rebuild via tools/) ===
+android/app/src/main/assets/*.tflite
+android/app/src/main/assets/*.bin
+
+# NOTE: CapWords.mp4 is intentionally kept under version control (reference asset).

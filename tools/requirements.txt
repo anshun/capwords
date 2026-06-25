@@ -1,0 +1,17 @@
+# Data pipeline (run on a PC with network + Python 3.10+).
+nltk>=3.8
+wordfreq>=3.1
+opencc-python-reimplemented>=0.1.7
+transformers>=4.40
+torch>=2.2
+sentencepiece>=0.2
+sacremoses>=0.1
+pillow>=10.0
+numpy>=1.26
+# MobileCLIP (install from Apple's repo, see tools/README.md):
+#   pip install git+https://github.com/apple/ml-mobileclip.git
+# Model conversion (PyTorch -> ONNX -> TFLite):
+onnx>=1.16
+onnxruntime>=1.18
+onnx2tf>=1.22
+tensorflow>=2.16

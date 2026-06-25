@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CapWords</string>
+
+    <!-- Camera -->
+    <string name="place_object_hint">Please place the object within the frame</string>
+    <string name="camera_permission_rationale">CapWords needs the camera to recognize objects around you.</string>
+    <string name="grant_permission">Grant camera access</string>
+
+    <!-- Capture / Recognize -->
+    <string name="confirm">Confirm</string>
+    <string name="retake">Retake</string>
+    <string name="cancel">Cancel</string>
+    <string name="crop">Crop</string>
+    <string name="recognizing">Recognizing…</string>
+    <string name="not_expected">Not what you expected? Tap to adjust</string>
+    <string name="speak">Pronounce</string>
+
+    <!-- Gallery -->
+    <string name="words_count">%d Words</string>
+    <string name="empty_gallery">No words yet. Tap the shutter to capture your first object.</string>
+</resources>

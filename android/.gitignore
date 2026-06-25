@@ -1,0 +1,15 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+app/build/
+
+# Large generated model assets (rebuild via tools/)
+app/src/main/assets/*.tflite
+app/src/main/assets/*.bin
