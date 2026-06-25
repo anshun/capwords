@@ -22,11 +22,16 @@ venv/
 *.egg-info/
 # model checkpoints & conversion outputs are large, rebuild via tools/
 tools/checkpoints/
-tools/converted/
+tools/converted*/
 tools/*.onnx
+# downloaded dictionary / intermediate data
+tools/data/
+tools/*.csv
 
 # === Large generated model assets (rebuild via tools/) ===
 android/app/src/main/assets/*.tflite
+android/app/src/main/assets/*.onnx
 android/app/src/main/assets/*.bin
+# words.tsv (~760KB) is small enough to keep tracked as a shippable artifact.
 
 # NOTE: CapWords.mp4 is intentionally kept under version control (reference asset).

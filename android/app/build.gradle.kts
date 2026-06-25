@@ -18,6 +18,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+
+        // Ship only arm64-v8a (every modern phone): drops ~53MB of x86/x86_64/
+        // armeabi-v7a ONNX Runtime native libs. Add "armeabi-v7a" for old 32-bit devices.
+        ndk { abiFilters += "arm64-v8a" }
     }
 
     buildTypes {
@@ -48,10 +52,8 @@ android {
         // TFLite models are already compressed; keep them uncompressed for mmap.
         jniLibs { useLegacyPackaging = false }
     }
-    // Do not compress model / embedding assets so they can be memory-mapped.
-    androidResources {
-        noCompress += listOf("tflite", "bin")
-    }
+    // Let the model/embedding assets compress in the APK (smaller download); they
+    // are read fully into memory at load, so transparent inflation is fine.
 }
 
 dependencies {
@@ -87,12 +89,10 @@ dependencies {
     // Permissions helper
     implementation(libs.accompanist.permissions)
 
-    // On-device ML — LiteRT (Phase 3: MobileCLIP + U2Net)
-    implementation(libs.litert)
-    implementation(libs.litert.gpu)
-    implementation(libs.litert.support)
+    // On-device MobileCLIP image encoder (Phase 3) runs via ONNX Runtime Mobile.
+    implementation(libs.onnxruntime.android)
 
-    // Phase 1 stub recognizer / fallback segmentation
+    // ML Kit fallback recognizer (~400 classes) + subject segmentation cut-out.
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.subject.segmentation)
 }

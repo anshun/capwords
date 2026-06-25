@@ -15,6 +15,34 @@ import re
 
 TOKEN_RE = re.compile(r"^[a-z][a-z\- ]+[a-z]$")
 
+# WordNet lexicographer files that correspond to things you can photograph.
+CONCRETE_LEXNAMES = {
+    "noun.artifact",    # man-made objects (cup, chair, phone)
+    "noun.animal",      # animals
+    "noun.plant",       # plants, flowers, trees
+    "noun.food",        # food & drink
+    "noun.object",      # natural objects (rock, star, beach)
+    "noun.body",        # body parts
+    "noun.substance",   # materials (water, sand, metal)
+}
+
+# Senses are returned most-common first; require the *primary* noun sense to be
+# concrete so words whose dominant meaning is abstract (two, need, may, work) are
+# dropped even though they carry some buried concrete sense.
+PRIMARY_SENSES = 1
+
+# Short, common words that pass the lexname test via an obscure concrete sense
+# (down=feathers, must=grape-juice, john=toilet) but read as noise on a label.
+# Body parts and real objects are deliberately NOT here.
+STOPWORDS = {
+    "way", "out", "come", "must", "after", "world", "still", "two", "three",
+    "four", "year", "old", "young", "big", "working", "means", "part", "group",
+    "system", "life", "point", "local", "take-up", "set-back", "a-line",
+    "life-of-man", "so-and-so", "down", "up", "off", "over", "under", "shit",
+    "john", "being", "thing", "lot", "kind", "sort", "type", "number", "one",
+    "can-do", "have-not", "has-been", "know-all", "know-it-all",
+}
+
 
 def concrete_nouns() -> set[str]:
     import nltk
@@ -22,21 +50,16 @@ def concrete_nouns() -> set[str]:
     nltk.download("omw-1.4", quiet=True)
     from nltk.corpus import wordnet as wn
 
-    physical = wn.synset("physical_entity.n.01")
     keep: set[str] = set()
-    # Breadth-first over all hyponyms of physical_entity.
-    stack = [physical]
-    seen = set()
-    while stack:
-        syn = stack.pop()
-        if syn.name() in seen:
+    for lemma_name in wn.all_lemma_names(pos=wn.NOUN):
+        word = lemma_name.replace("_", " ").lower()
+        if not TOKEN_RE.match(word) or len(word) > 24:
             continue
-        seen.add(syn.name())
-        for lemma in syn.lemmas():
-            word = lemma.name().replace("_", " ").lower()
-            if TOKEN_RE.match(word) and len(word) <= 24:
-                keep.add(word)
-        stack.extend(syn.hyponyms())
+        if word in STOPWORDS:
+            continue
+        senses = wn.synsets(lemma_name, pos=wn.NOUN)[:PRIMARY_SENSES]
+        if any(s.lexname() in CONCRETE_LEXNAMES for s in senses):
+            keep.add(word)
     return keep
 
 

@@ -159,9 +159,29 @@ capwords/
 |---|---|---|
 | 計畫文件 | ✅ 完成 | 本文件 |
 | Phase 1 骨架 | ✅ 完成並驗證 | 五畫面 + CameraX + Room + TTS；`./gradlew assembleDebug` **BUILD SUCCESSFUL**（zero warnings），產出 app-debug.apk |
-| Phase 2 資料管線 | 🟡 腳本完成 | `tools/` 四支腳本已寫好並通過語法檢查；尚需在有網路/Python 的機器實際產生 ~2 萬詞表 + 翻譯 + 向量表 |
-| Phase 3 接真模型 | 🟡 程式就緒 | `ClipRecognizer` / `assets/` 接點已備；放入 `mobileclip_image.tflite`+`clip_words.txt`+`text_embeddings.bin` 即自動切換，無需改碼 |
-| Phase 4 打磨 | ⬜ 未開始 | 動畫、瀑布流、貼紙白邊、Top-5、GPU delegate |
+| Phase 2 資料管線 | ✅ 完成並執行 | `tools/` 已實際跑出 `clip_words.txt`(2萬) + `words.tsv`(繁簡,99%) + `text_embeddings.bin`(20000×512) |
+| Phase 3 接真模型 | ✅ 完成並驗證 | MobileCLIP-S0 影像編碼器走 **ONNX Runtime**（非 TFLite）；端到端實測命中（donut/cup）；`assembleDebug` 成功打包 213MB APK |
+| Phase 4 打磨 | 🟡 部分 | ✅ APK 體積優化完成（213MB→97MB）；待辦：動畫、瀑布流、U²-Net 離線去背 |
+
+### APK 體積優化（2026-06-25）：213MB → 97MB（−54%）
+- **只保留 arm64-v8a ABI**（`abiFilters`）：丟掉 x86/x86_64/armeabi-v7a 的 ONNX Runtime 原生庫，約 −53MB。
+- **文字向量表改 int8**（float32 scale + N×512 int8）：41MB → 10MB（壓縮後 6.9MB），端到端實測仍命中 donut（dequant 誤差 0.0024）。`ClipRecognizer` 載入時還原成 float。
+- **assets 改為壓縮打包**（移除 noCompress）。
+- **未採用的優化（皆實測失敗）**：
+  - int8 **動態**量化（11.9MB）→ 辨識崩壞（donut→curtain）。
+  - int8 **靜態**量化（12.5MB，用影片畫面做 in-domain 校準 + per-channel QDQ）→ 與 fp32 **cosine 僅 0.14**，等同壞掉（donut→mason jar、mug→fridge）。
+  - fp16（onnxconverter-common，含 keep_io_types / op_block_list / disable_shape_infer 共 4 變體）→ ONNX Runtime 1.20 初始化型別不符，全部載入失敗。
+  - 根因：MobileCLIP-S0 影像編碼器為 FastViT 系（重參數化 conv），activation 動態範圍對 int8 太敏感；fp16 為工具相容性問題。
+  - **決定**：`mobileclip_image.onnx` 維持 fp32（42MB，最大單一資產）。**接受 97MB 全離線版**（不走首次下載/PAD）。未來若要更小，正解是「首次啟動下載模型」把 base APK 降到 ~55MB，而非量化此模型。
+
+### Phase 3 重大決策與驗證（2026-06-25）
+- **辨識廣度路線確定**：開放詞彙 = MobileCLIP 影像向量 ⨉ 2 萬名詞文字向量表（餘弦最近鄰）。換更大的表即可支援更多詞，App 不改碼。
+- **詞表品質**：WordNet 具體名詞（lexname=artifact/animal/plant/food/object/body/substance）+ 主要詞義過濾 + 小停用詞表 → 乾淨可拍攝的 2 萬名詞。
+- **翻譯改用 ECDICT 開源詞典**（非 NMT，NMT 對單字會重複/選錯詞義）：99% 覆蓋、繁簡雙份（OpenCC s2twp）。
+- **改走 ONNX Runtime（非 TFLite）**：MobileCLIP-S0 影像編碼器轉 ONNX 後 **ONNX==PyTorch cosine 1.000000**；但 onnx2tf→TFLite 對此圖反覆失敗，故直接在 Android 跑已驗證的 ONNX，更可靠。`ClipRecognizer` 改為 256×256 / 0..1 / NCHW。
+- **端到端實測（用影片畫面）**：物體填滿畫面時，frame_002/004 甜甜圈 → `donut`(top, 0.29)、frame_019 紅杯 → `cup/coffee cup`。確認「離線、幾萬詞、即時辨識」成立。
+- **產品改進**：辨識改跑「去背後的主體」而非整張畫面（甜甜圈放大盤上時，整張會誤判成 plate）。
+- **APK**：debug 213MB（含 4 種 ABI 的 ONNX Runtime + 86MB 模型資產）。Release 可用 ABI split（只留 arm64）+ fp16 模型 + int8 向量表大幅縮小。
 
 ### Phase 1 驗證結果（2026-06-25）
 - 工具鏈：本機 Android SDK + Gradle（wrapper 釘 8.9，相容 AGP 8.5.2）。

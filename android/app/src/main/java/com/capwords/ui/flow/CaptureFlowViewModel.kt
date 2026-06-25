@@ -66,8 +66,11 @@ class CaptureFlowViewModel(app: Application) : AndroidViewModel(app) {
             container.translator.ensureLoaded()
             val sticker = runCatching { container.segmenter.cutout(captured) }
                 .getOrDefault(captured)
+            // Recognize the segmented subject, not the whole scene: isolating the
+            // object dramatically improves accuracy (a donut on a big plate would
+            // otherwise be read as "plate").
             val candidates = runCatching {
-                container.recognizer().recognize(captured, topK = 5)
+                container.recognizer().recognize(sticker, topK = 5)
             }.getOrDefault(emptyList())
             val top = candidates.firstOrNull()
             _state.value = _state.value.copy(

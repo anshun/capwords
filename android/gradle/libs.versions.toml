@@ -10,9 +10,7 @@ camerax = "1.3.4"
 room = "2.6.1"
 ksp = "2.0.20-1.0.25"
 coil = "2.7.0"
-litert = "1.0.1"
-litertGpu = "1.0.1"
-litertSupport = "1.0.1"
+onnxruntime = "1.20.0"
 mlkitImageLabeling = "17.0.9"
 mlkitSubjectSegmentation = "16.0.0-beta1"
 accompanistPermissions = "0.36.0"
@@ -43,9 +41,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
-litert = { group = "com.google.ai.edge.litert", name = "litert", version.ref = "litert" }
-litert-gpu = { group = "com.google.ai.edge.litert", name = "litert-gpu", version.ref = "litertGpu" }
-litert-support = { group = "com.google.ai.edge.litert", name = "litert-support", version.ref = "litertSupport" }
+onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
 
 mlkit-image-labeling = { group = "com.google.mlkit", name = "image-labeling", version.ref = "mlkitImageLabeling" }
 mlkit-subject-segmentation = { group = "com.google.android.gms", name = "play-services-mlkit-subject-segmentation", version.ref = "mlkitSubjectSegmentation" }
