@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -63,10 +67,16 @@ fun GalleryScreen(
                 modifier = Modifier.align(Alignment.Center).padding(48.dp),
             )
         } else {
+            val bars = WindowInsets.systemBars.asPaddingValues()
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 64.dp, bottom = 96.dp),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = bars.calculateTopPadding() + 56.dp,
+                    bottom = bars.calculateBottomPadding() + 32.dp,
+                ),
                 verticalItemSpacing = 18.dp,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
@@ -94,7 +104,7 @@ fun GalleryScreen(
 
         IconButton(
             onClick = onBack,
-            modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 44.dp),
+            modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(start = 8.dp, top = 4.dp),
         ) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
         }

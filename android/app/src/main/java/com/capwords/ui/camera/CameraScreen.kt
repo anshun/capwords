@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -122,7 +124,8 @@ private fun CameraContent(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = 20.dp, top = 56.dp),
+                .statusBarsPadding()
+                .padding(start = 20.dp, top = 12.dp),
         ) {
             Text(
                 text = DateUtils.dayLabel(System.currentTimeMillis()),
@@ -149,6 +152,7 @@ private fun CameraContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                .navigationBarsPadding()
                 .padding(vertical = 18.dp, horizontal = 28.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
